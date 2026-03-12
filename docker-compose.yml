@@ -1,6 +1,6 @@
 services:
   web:
-    image: ghcr.io/quantinium3/deployment-demo/web:f842281
+    image: ghcr.io/quantinium3/deployment-demo/web:latest
     ports:
       - "3001:3001"
     depends_on:
@@ -9,7 +9,7 @@ services:
     restart: unless-stopped
 
   server:
-    image: ghcr.io/quantinium3/deployment-demo/server:f842281
+    image: ghcr.io/quantinium3/deployment-demo/server:latest
     ports:
       - "3000:3000"
     depends_on:
