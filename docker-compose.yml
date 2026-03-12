@@ -1,8 +1,8 @@
 services:
   web:
     image: ghcr.io/quantinium3/deployment-demo/web:f842281
-    expose:
-      - "3001"
+    ports:
+      - "3001:3001"
     depends_on:
       server:
         condition: service_healthy
