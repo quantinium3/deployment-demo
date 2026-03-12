@@ -10,7 +10,7 @@ services:
 
   server:
     image: ghcr.io/quantinium3/deployment-demo/server:f842281
-    expose:
+    ports:
       - "3000:3000"
     depends_on:
       db:
