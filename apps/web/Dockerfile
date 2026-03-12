@@ -1,31 +1,23 @@
-FROM node:24-slim as base
+FROM node:24-slim AS base
 
 ENV PNPM_HOME="/pnpm"
-
 ENV PATH="$PNPM_HOME:$PATH"
-
 RUN corepack enable
 
-FROM base as build
+FROM base AS build
 
-WORKDIR /usr/src/app
+WORKDIR /app
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json .
+RUN pnpm install --frozen-lockfile
 
-COPY . /usr/src/app
-
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
-
-RUN pnpm run -r build
-
+COPY . .
+RUN pnpm --filter=web run build
 RUN pnpm deploy --filter=web --prod /prod/web
 
-FROM node:24-slim AS final
-
-ENV NODE_ENV=production
-
-RUN corepack enable && npm install -g serve@14.2.6
-
+FROM base AS final
+RUN corepack enable
+RUN npm install -g serve@14.2.6
 COPY --from=build /prod/web/dist ./dist
-
 USER node
-
+EXPOSE 3001
 CMD ["serve", "-s", "dist", "-l", "3001"]

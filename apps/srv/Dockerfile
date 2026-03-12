@@ -1,42 +1,30 @@
 FROM node:24-slim AS base
 
 ENV PNPM_HOME="/pnpm"
-
 ENV PATH="$PNPM_HOME:$PATH"
-
 RUN corepack enable
 
-
-FROM base AS builder
-
-WORKDIR /usr/src/app
-
-COPY . .
-
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
-
-RUN pnpm --filter=srv run build
-
-RUN pnpm deploy --filter=srv --prod /prod/srv
-
-
-FROM node:24-slim AS runner
+FROM base AS build
 
 WORKDIR /app
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json .
+RUN pnpm install --frozen-lockfile
 
-RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 hono
+COPY . .
+RUN pnpm --filter=srv run build
+RUN pnpm deploy --filter=srv --prod /prod/srv
 
-COPY --from=builder --chown=hono:nodejs /prod/srv/node_modules ./node_modules
+FROM base AS final
 
-COPY --from=builder --chown=hono:nodejs /prod/srv/drizzle ./drizzle
+WORKDIR /app
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 hono
 
-COPY --from=builder --chown=hono:nodejs /prod/srv/dist ./dist
-
-COPY --from=builder --chown=hono:nodejs /prod/srv/package.json ./package.json
+COPY --from=build --chown=hono:nodejs /prod/srv/node_modules /app/node_modules
+COPY --from=build --chown=hono:nodejs /prod/srv/dist /app/dist
+COPY --from=build --chown=hono:nodejs /prod/srv/package.json /app/package.json
+COPY --from=build --chown=hono:nodejs /prod/srv/drizzle /app/drizzle
 
 USER hono
-
 EXPOSE 3000
-
-CMD ["node", "/app/dist/index.js"]
+CMD ["node", "dist/src/index.js"]

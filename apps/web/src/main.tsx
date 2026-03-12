@@ -16,13 +16,15 @@ const App = () => {
 
   useEffect(() => {
     fetchTodos();
-  }, []);
+  }, [newTodo]);
 
   const fetchTodos = async () => {
     try {
-      const res = await fetch("/api/todos");
+      const res = await fetch("/api/todos", {
+        method: "GET"
+      });
       const data = await res.json();
-      setTodos(data);
+      setTodos(data.todos);
     } catch (err) {
       console.error("failed to get todos", err);
     } finally {
@@ -30,17 +32,17 @@ const App = () => {
     }
   };
 
-  const addTodo = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const addTodo = async (e: React.SubmitEvent) => {
+    e.preventDefault()
     if (!newTodo.trim()) return;
     try {
-      const res = await fetch("/api/todos", {
+      await fetch("/api/todos", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: newTodo }),
+        body: JSON.stringify({
+          text: newTodo,
+        })
       });
-      const todo = await res.json();
-      setTodos([...todos, todo]);
       setNewTodo("");
     } catch (err) {
       console.error("failed to add todo", err);

@@ -4,10 +4,8 @@ services:
       context: .
       dockerfile: apps/web/Dockerfile
       target: final
-    expose:
-      - "3001"
-    deploy:
-      replicas: 1
+    ports:
+      - "3001:3001"
     depends_on:
       server:
         condition: service_healthy
@@ -17,12 +15,17 @@ services:
     build:
       context: .
       dockerfile: apps/srv/Dockerfile
+      target: final
     expose:
-      - "3000"
+     - "3000"
+    depends_on:
+      db:
+        condition: service_healthy
     environment:
-      - NODE_ENV=production
+      NODE_ENV: ${NODE_ENV}
+      DATABASE_URL: ${DATABASE_URL}
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -34,13 +37,20 @@ services:
     restart: unless-stopped
     shm_size: 128mb
     environment:
-      POSTGRES_PASSWORD: password
-      POSTGRES_USER: postgres
-      POSTGRES_DB: postgres
-    ports:
-      - "5432:5432"
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_DB: ${DATABASE_DBNAME}
+    expose:
+      - "5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER} -d ${DATABASE_DBNAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
 
 volumes:
   postgres_data:
