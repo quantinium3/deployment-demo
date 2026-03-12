@@ -1,23 +1,17 @@
 services:
   web:
-    build:
-      context: .
-      dockerfile: apps/web/Dockerfile
-      target: final
-    ports:
-      - "3001:3001"
+    image: registry.gitlab.com/quantinium1/deployment-demo/web:f842281
+    expose:
+      - "3001"
     depends_on:
       server:
         condition: service_healthy
     restart: unless-stopped
 
   server:
-    build:
-      context: .
-      dockerfile: apps/srv/Dockerfile
-      target: final
+    image: registry.gitlab.com/quantinium1/deployment-demo/server:f842281
     expose:
-     - "3000"
+      - "3000"
     depends_on:
       db:
         condition: service_healthy
@@ -50,7 +44,6 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
-
 
 volumes:
   postgres_data:

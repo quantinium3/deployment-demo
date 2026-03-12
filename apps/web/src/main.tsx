@@ -16,7 +16,7 @@ const App = () => {
 
   useEffect(() => {
     fetchTodos();
-  }, [newTodo]);
+  }, []);
 
   const fetchTodos = async () => {
     try {
@@ -43,6 +43,7 @@ const App = () => {
           text: newTodo,
         })
       });
+      fetchTodos();
       setNewTodo("");
     } catch (err) {
       console.error("failed to add todo", err);
@@ -52,7 +53,7 @@ const App = () => {
   const deleteTodo = async (id: string) => {
     try {
       await fetch(`/api/todos/${id}`, { method: "DELETE" });
-      setTodos(todos.filter((t) => t.id !== id));
+      fetchTodos();
     } catch (err) {
       console.error("failed to delete todo", err);
     }
