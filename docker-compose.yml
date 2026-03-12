@@ -1,6 +1,6 @@
 services:
   web:
-    image: registry.gitlab.com/quantinium1/deployment-demo/web:f842281
+    image: ghcr.io/quantinium3/deployment-demo/web:f842281
     expose:
       - "3001"
     depends_on:
@@ -9,7 +9,7 @@ services:
     restart: unless-stopped
 
   server:
-    image: registry.gitlab.com/quantinium1/deployment-demo/server:f842281
+    image: ghcr.io/quantinium3/deployment-demo/server:f842281
     expose:
       - "3000"
     depends_on:
