@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'apps/srv/**'
+      - 'apps/web/**'
   workflow_dispatch:
 
 
