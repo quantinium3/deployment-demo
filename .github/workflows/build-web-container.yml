@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'apps/srv/**'
   workflow_dispatch:
 
 
@@ -36,7 +38,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
-          context: ./apps/web
+          context: .
+          file: ./apps/web/Dockerfile
           push: true
           tags: |
             ${{ env.IMAGE_PREFIX }}/web:${{ steps.vars.outputs.sha }}
