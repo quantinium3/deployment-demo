@@ -20,7 +20,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Copy docker-compose to server
-        uses: appleboy/scp-action@v0.1.7
+        uses: appleboy/scp-action@v1
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
@@ -29,7 +29,7 @@ jobs:
           target: "~/app"
 
       - name: Deploy on server
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
@@ -37,8 +37,5 @@ jobs:
           script: |
             cd ~/app
             echo "${{ secrets.ENV_FILE }}" > .env
-            docker compose pull
             docker compose up -d --pull always --remove-orphans
             docker image prune -f
-
-
