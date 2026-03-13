@@ -8,6 +8,7 @@ FROM base AS build
 
 WORKDIR /app
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json .
+COPY apps/srv/package.json ./apps/srv/package.json
 RUN pnpm install --frozen-lockfile
 
 COPY . .
